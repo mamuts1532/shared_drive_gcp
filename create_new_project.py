@@ -19,7 +19,7 @@ def main():
 
 
     # Encontrar carpeta pde proyectos
-    def search_folder():
+    def search_drive():
 
         page_token = None
         flag_while = True
@@ -57,13 +57,11 @@ def main():
     list_folder = ['Directores y Administrativos','Directores y Dirección Administrativa','Directores Generales y Administrativos', 'Administrativos', 'Todo Quantil']
     #Lista de metadatos de cada carpeta creada
     list_metadata = []
-    searchfolder = search_folder()
-    print('=>>',type(searchfolder))
+    searchfolder = search_drive()
   
 
     # Función para crear carpetas
     def create_folder(ID_PARENTS):
-        print('>>',ID_PARENTS)
         try: 
             for lf in list_folder:
                 file_name = {
@@ -99,3 +97,8 @@ def main():
 
 if __name__=='__main__':
     main()
+
+
+# Referencias:
+
+# https://datatofish.com/executable-pyinstaller/

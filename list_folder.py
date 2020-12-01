@@ -16,40 +16,33 @@ drive=build("drive", "v3", credentials=credentials)
 
 print('Autenticado valida con Api Drive V3')
 
-def search_folder():
+def search_folder(Id_Project):
 
     page_token = None
-    flag_while = True
-    flag_for = False
-    id_project = None
+    # flag_while = True
+    # flag_for = False
+    # id_project = None
 
     try:
-        while flag_while:
-            response = drive.files().list(q="mimeType='application/vnd.google-apps.folder'",
-                                                spaces='drive',
-                                                fields='nextPageToken, files(id, name)',
-                                                pageToken=page_token).execute()
+        while True:
+            response = drive.files().list(q = "'" + Id_Project + "' in parents and trashed = false and mimeType='application/vnd.google-apps.folder'", pageToken=page_token, fields="nextPageToken, files(id, name)").execute()
+            #items = results.get('files', [])
+            dict_folder = {}
             for file in response.get('files', []):
-                # Process change
-                if file.get('name') == 'Proyectos y Trabajos':
-                    # print('Encontrado')
-                    # print ('Found file: %s (%s)' % (file.get('name'), file.get('id')))
-                    id_project = file.get('id')
-
-                    flag_while = False
-                    flag_for = True
+                # print('Encontrado')
+                print ('Cliente encontrado: %s' % file.get('name'))
+                dict_folder[file.get('name')] = file.get('id') 
+            Project_new = input("¿Para qué cliente quiere crear un nuevo proyecto?, escriba el nombre como aparece en la lista! \n")
+            if Project_new in dict_folder:
+                return dict_folder[Project_new]
+            else:
+                print ('No se encontro Cliente con ese nombre')
             page_token = response.get('nextPageToken', None)
             if page_token is None:
                 break
-
-        # if flag_for == False:
-        #     print('No se encontro Carpeta con ese nombre')
-        # print('ID de la carpeta: ',id_project)
-        return id_project
     except errors.HttpError as error:
         print('An error occurred:', error)
-        return None
 
 if __name__=='__main__':
-    var = search_folder()
-    print('ID de la carpeta: ', var)
+    var = search_folder(Id_Project='1N-pCKaDlWc9oZOhWFa9Nt_6yqMqhvsWj')
+    #print('ID de la carpeta: ', var)
