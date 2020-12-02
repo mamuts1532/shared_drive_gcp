@@ -16,7 +16,7 @@ drive=build("drive", "v3", credentials=credentials)
 
 print('Autenticado valida con Api Drive V3')
 
-def search_folder():
+def search_drive():
 
     page_token = None
     flag_while = True
@@ -51,5 +51,11 @@ def search_folder():
         return None
 
 if __name__=='__main__':
-    var = search_folder()
+    var = search_drive()
     print('ID de la carpeta: ', var)
+
+
+## Referencias 
+# https://developers.google.com/drive/api/v2/reference/files/list
+# https://developers.google.com/drive/api/v2/search-files
+# https://stackoverflow.com/questions/56857760/list-of-files-in-a-google-drive-folder-with-python

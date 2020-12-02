@@ -47,23 +47,17 @@ def main():
 
             if flag_for == False:
                 print('No se encontro Carpeta con ese nombre')
-            print('ID de la carpeta: ',id_project)
+            #print('ID de la carpeta: ',id_project)
             return id_project
         except errors.HttpError as error:
             print('An error occurred:', error)
             return None
-
-    #Lista de carpetas que se crearan
-    list_folder = ['Directores y Administrativos','Directores y Dirección Administrativa','Directores Generales y Administrativos', 'Administrativos', 'Todo Quantil']
-    #Lista de metadatos de cada carpeta creada
-    list_metadata = []
-    searchfolder = search_drive()
   
 
     # Función para crear carpetas
-    def create_folder(ID_PARENTS):
+    def create_folder(ID_PARENTS, LIST_FOLDER):
         try: 
-            for lf in list_folder:
+            for lf in LIST_FOLDER:
                 file_name = {
                     'name': lf,
                     'mimeType': 'application/vnd.google-apps.folder',
@@ -75,7 +69,8 @@ def main():
                 list_metadata.append(obj)
 
             #print('Id FOlder1: ',l[0]['id'])
-            return print('Folders Created!!!')
+            print('Folders Created!!!')
+            return list_metadata
         except errors.HttpError as error:
             print('An error occurred:', error)
             return None
@@ -89,11 +84,55 @@ def main():
         except errors.HttpError as error:
             print('An error occurred:', error)
             return None
+    
+    def search_folder(Id_Customer):
+
+        page_token = None
+        # flag_while = True
+        # flag_for = False
+        # id_project = None
+
+        try:
+            while True:
+                response = drive.files().list(q = "'" + Id_Customer + "' in parents and trashed = false and mimeType='application/vnd.google-apps.folder'", pageToken=page_token, fields="nextPageToken, files(id, name)").execute()
+                #items = results.get('files', [])
+                dict_folder = {}
+                for file in response.get('files', []):
+                    # print('Encontrado')
+                    print ('Cliente encontrado: %s' % file.get('name'))
+                    dict_folder[file.get('name')] = file.get('id') 
+                Project_new = input("¿Para qué cliente quiere crear un nuevo proyecto?, escriba el nombre como aparece en la lista! \n")
+                count = 0
+                while count < 3:
+
+                    if Project_new in dict_folder:
+                        return dict_folder[Project_new]
+                    else:
+                        print ('No se encontro Cliente con ese nombre')
+                        Project_new = input("Por favor escriba nuevamente el nombre como aparece en la lista! \n")
+                        count += 1
+                    
+                page_token = response.get('nextPageToken', None)
+                if page_token is None:
+                    break
+        except errors.HttpError as error:
+            print('An error occurred:', error)
+    
+    #Lista de carpetas que se crearan
+    list_folder = ['Directores y Administrativos','Directores y Dirección Administrativa','Directores Generales y Administrativos', 'Administrativos', 'Todo Quantil']
+    #Lista de metadatos de cada carpeta creada
+    list_metadata = []
+    searchfolder = search_drive()
 
     if searchfolder != None:
-        create_folder(ID_PARENTS = searchfolder)
+        var_search_folder = search_folder(Id_Customer=searchfolder)
+        #name_project = 
+        var_folder_project = create_folder(ID_PARENTS=var_search_folder)
+        create_folder(ID_PARENTS = var_search_folder, LIST_FOLDER=list_folder)
     else:
         ('No hay carpeta con el nombre: Proyectos y Trabajos')
+
+
 
 if __name__=='__main__':
     main()

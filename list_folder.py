@@ -33,10 +33,16 @@ def search_folder(Id_Project):
                 print ('Cliente encontrado: %s' % file.get('name'))
                 dict_folder[file.get('name')] = file.get('id') 
             Project_new = input("¿Para qué cliente quiere crear un nuevo proyecto?, escriba el nombre como aparece en la lista! \n")
-            if Project_new in dict_folder:
-                return dict_folder[Project_new]
-            else:
-                print ('No se encontro Cliente con ese nombre')
+            count = 0
+            while count < 3:
+
+                if Project_new in dict_folder:
+                    return dict_folder[Project_new]
+                else:
+                    print ('No se encontro Cliente con ese nombre')
+                    Project_new = input("Por favor escriba nuevamente el nombre como aparece en la lista! \n")
+                    count += 1
+                
             page_token = response.get('nextPageToken', None)
             if page_token is None:
                 break
@@ -45,4 +51,4 @@ def search_folder(Id_Project):
 
 if __name__=='__main__':
     var = search_folder(Id_Project='1N-pCKaDlWc9oZOhWFa9Nt_6yqMqhvsWj')
-    #print('ID de la carpeta: ', var)
+    print('ID de la carpeta: ', var)
