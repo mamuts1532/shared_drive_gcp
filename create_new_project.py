@@ -4,6 +4,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.http import MediaFileUpload
 import datetime
 from apiclient import errors
+from datetime import datetime
+
+
 
 def main():    
     #Credenciales y parametros para autenticación con API DRIVE 
@@ -15,7 +18,11 @@ def main():
     credentials=flow.run_console()
     drive=build("drive", "v3", credentials=credentials)
 
-    print('Autenticado valida con Api Drive V3')
+    print('Autenticación valida con Api Drive V3')
+
+    def time_string():
+        now = datetime.now()
+        return str(now.date())
 
 
     # Encontrar carpeta pde proyectos
@@ -69,21 +76,50 @@ def main():
                 list_metadata.append(obj)
 
             #print('Id FOlder1: ',l[0]['id'])
-            print('Folders Created!!!')
+            #print('Folders Created!!!')
             return list_metadata
         except errors.HttpError as error:
             print('An error occurred:', error)
             return None
 
     # Función para dar permisos a carpetas
-    def permissions():
+    def permissions(EMAIL_ADDRESS, ID_DRIVE):
         try:
-            permission = {'role': 'writer', 'type' : 'user', 'emailAddress': 'jorge841124@gmail.com'}
-            drive.permissions().create(fileId=list_metadata[0]['id'],body=permission).execute()
-            return print('Permission Assigned!!!')
+            permission = {'role': 'writer', 
+                        'type' : 'group', 
+                        'emailAddress': EMAIL_ADDRESS}
+            drive.permissions().create(fileId=ID_DRIVE, body=permission).execute()
+            return 
         except errors.HttpError as error:
             print('An error occurred:', error)
             return None
+
+    def assign_permissions(LIST_METADATA):
+        for l in LIST_METADATA:
+            if l['name'] == 'Directores y Administrativos':
+                EMAIL_ADDRESS1 = 'director.area@quantil.com.co'
+                EMAIL_ADDRESS2 = 'administrativo@quantil.com.co'
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+                
+
+            elif l['name'] == 'Directores y Dirección Administrativa':
+                EMAIL_ADDRESS1 = 'director.area@quantil.com.co'
+                EMAIL_ADDRESS2 = 'direccion.administrativa@quantil.com.co'
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+
+            if l['name'] == 'Directores Generales y Administrativos':
+                EMAIL_ADDRESS1 = 'director.general@quantil.com.co'
+                EMAIL_ADDRESS2 = 'administrativo@quantil.com.co'
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+
+            if l['name'] == 'Administrativos y Todo Quantil':
+                EMAIL_ADDRESS1 = 'administrativo@quantil.com.co'
+                EMAIL_ADDRESS2 = 'empleados@quantil.com.co'
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
     
     def search_folder(Id_Customer):
 
@@ -94,7 +130,9 @@ def main():
 
         try:
             while True:
-                response = drive.files().list(q = "'" + Id_Customer + "' in parents and trashed = false and mimeType='application/vnd.google-apps.folder'", pageToken=page_token, fields="nextPageToken, files(id, name)").execute()
+                response = drive.files().list(q = "'" + Id_Customer + "' in parents and trashed = false and mimeType='application/vnd.google-apps.folder'", 
+                                              pageToken=page_token, 
+                                              fields="nextPageToken, files(id, name)").execute()
                 #items = results.get('files', [])
                 dict_folder = {}
                 for file in response.get('files', []):
@@ -103,15 +141,14 @@ def main():
                     dict_folder[file.get('name')] = file.get('id') 
                 Project_new = input("¿Para qué cliente quiere crear un nuevo proyecto?, escriba el nombre como aparece en la lista! \n")
                 count = 0
-                while count < 3:
+                while count < 2:
 
                     if Project_new in dict_folder:
                         return dict_folder[Project_new]
                     else:
                         print ('No se encontro Cliente con ese nombre')
                         Project_new = input("Por favor escriba nuevamente el nombre como aparece en la lista! \n")
-                        count += 1
-                    
+                        count += 1   
                 page_token = response.get('nextPageToken', None)
                 if page_token is None:
                     break
@@ -119,18 +156,29 @@ def main():
             print('An error occurred:', error)
     
     #Lista de carpetas que se crearan
-    list_folder = ['Directores y Administrativos','Directores y Dirección Administrativa','Directores Generales y Administrativos', 'Administrativos', 'Todo Quantil']
+    list_folder = ['Directores y Administrativos',
+                   'Directores y Dirección Administrativa',
+                   'Directores Generales y Administrativos', 
+                   'Administrativos y Todo Quantil']
     #Lista de metadatos de cada carpeta creada
     list_metadata = []
     searchfolder = search_drive()
 
     if searchfolder != None:
         var_search_folder = search_folder(Id_Customer=searchfolder)
-        #name_project = 
-        var_folder_project = create_folder(ID_PARENTS=var_search_folder)
-        create_folder(ID_PARENTS = var_search_folder, LIST_FOLDER=list_folder)
+        if var_search_folder != None:
+            name_project = input("Escriba el nombre del proyecto! \n")
+            time_string = time_string()
+            name_project = name_project+'-'+time_string
+            list_name_project = [str(name_project)]
+            var_folder_project = create_folder(ID_PARENTS=var_search_folder, LIST_FOLDER = list_name_project)
+            var_folder_project_permissions = create_folder(ID_PARENTS = var_folder_project[0]['id'], LIST_FOLDER=list_folder)
+            #assign_permissions(LIST_METADATA=var_folder_project_permissions)
+        else:
+            print('No se encontro Cliente con este Nombre!')
+            
     else:
-        ('No hay carpeta con el nombre: Proyectos y Trabajos')
+        print('No hay carpeta con el nombre: Proyectos y Trabajos')
 
 
 

@@ -17,7 +17,7 @@ drive=build("drive", "v3", credentials=credentials)
 print('Autenticado valida con Api Drive V3')
 
 #Lista de carpetas que se crearan
-list_folder = ['folder1','folder2','folder3']
+list_folder = ['folderA','folderB','folderC']
 #Lista de metadatos de cada carpeta creada
 list_metadata = []
 
@@ -34,30 +34,51 @@ def create_folder():
             obj = drive.files().create(body=file_name).execute()
             #print('ls: ', type(obj))
             list_metadata.append(obj)
+        # for i in list_metadata:
+        #     print('-->>',i['name'])
 
         #print('Id FOlder1: ',l[0]['id'])
-        return print('Folders Created!!!')
+        return list_metadata
     except errors.HttpError as error:
         print('An error occurred:', error)
         return None
 
 # Función para dar permisos a carpetas
-def permissions():
+def permissions(EMAIL_ADDRESS, ID_DRIVE):
     try:
-        permission = {'role': 'writer', 'type' : 'user', 'emailAddress': 'jorge841124@gmail.com'}
-        drive.permissions().create(fileId=list_metadata[0]['id'],body=permission).execute()
+        permission = {'role': 'writer', 
+                      'type' : 'group', 
+                      'emailAddress': EMAIL_ADDRESS}
+        drive.permissions().create(fileId=ID_DRIVE, body=permission).execute()
         return print('Permission Assigned!!!')
     except errors.HttpError as error:
         print('An error occurred:', error)
         return None
 
+def assign_permissions(LIST_METADATA):
+    for l in LIST_METADATA:
+        if l['name'] == 'folderA':
+            EMAIL_ADDRESS = 'jorge841124@gmail.com'
+            p = permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
+
+        elif l['name'] == 'folderB':
+            EMAIL_ADDRESS = 'jorge.guevara@quantil.com.co'
+            p = permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
+
+        if l['name'] == 'folderC':
+            EMAIL_ADDRESS = 'tic@quantil.com.co'
+            p = permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
+
+
+
 if __name__=='__main__':
     print('Creating Folders...')
     print('******************')
-    create_folder()
+    cf = create_folder()
     print('Assigning Permissions...')
     print('******************')
-    permissions()
+    assign_permissions(LIST_METADATA=cf)
+    #permissions()
 
 
 # https://developers.google.com/drive/api/v3/reference/files
