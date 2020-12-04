@@ -115,11 +115,13 @@ def main():
                 permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
                 permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
 
-            if l['name'] == 'Administrativos y Todo Quantil':
-                EMAIL_ADDRESS1 = 'administrativo@quantil.com.co'
-                EMAIL_ADDRESS2 = 'empleados@quantil.com.co'
-                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
-                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+            if l['name'] == 'Administrativos':
+                EMAIL_ADDRESS = 'administrativo@quantil.com.co'
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
+
+            if l['name'] == 'Todo Quantil':
+                EMAIL_ADDRESS = 'empleados@quantil.com.co'
+                permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
     
     def search_folder(Id_Customer):
 
@@ -159,7 +161,8 @@ def main():
     list_folder = ['Directores y Administrativos',
                    'Directores y Dirección Administrativa',
                    'Directores Generales y Administrativos', 
-                   'Administrativos y Todo Quantil']
+                   'Administrativos',
+                   'Todo Quantil']
     #Lista de metadatos de cada carpeta creada
     list_metadata = []
     searchfolder = search_drive()
