@@ -22,7 +22,9 @@ def main():
 
     def time_string():
         now = datetime.now()
-        return str(now.date())
+        y = str(now.year)
+        m = str(now.month)
+        return str(y+m)
 
 
     # Encontrar carpeta pde proyectos
@@ -172,7 +174,7 @@ def main():
         if var_search_folder != None:
             name_project = input("Escriba el nombre del proyecto! \n")
             time_string = time_string()
-            name_project = name_project+'-'+time_string
+            name_project = time_string+'-'+name_project
             list_name_project = [str(name_project)]
             var_folder_project = create_folder(ID_PARENTS=var_search_folder, LIST_FOLDER = list_name_project)
             var_folder_project_permissions = create_folder(ID_PARENTS = var_folder_project[0]['id'], LIST_FOLDER=list_folder)
