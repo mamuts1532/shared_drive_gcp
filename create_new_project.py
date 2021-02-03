@@ -178,7 +178,7 @@ def main():
             list_name_project = [str(name_project)]
             var_folder_project = create_folder(ID_PARENTS=var_search_folder, LIST_FOLDER = list_name_project)
             var_folder_project_permissions = create_folder(ID_PARENTS = var_folder_project[0]['id'], LIST_FOLDER=list_folder)
-            #assign_permissions(LIST_METADATA=var_folder_project_permissions)
+            assign_permissions(LIST_METADATA=var_folder_project_permissions)
         else:
             print('No se encontro Cliente con este Nombre!')
             
