@@ -6,11 +6,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
+SCOPES = ['https://www.googleapis.com/auth/admin.directory.group.member']
+# SCOPES = ['https://www.googleapis.com/auth/admin.directory.group']
 
-def main():
+def members_groups(GROUP):
     """Shows basic usage of the Admin SDK Directory API.
-    Prints the emails and names of the first 10 users in the domain.
+    Prints the names of groups.
     """
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
@@ -34,32 +35,30 @@ def main():
     service = build('admin', 'directory_v1', credentials=creds)
 
     # Call the Admin SDK Directory API
-    print('Getting the first 10 users in the domain')
-    results = service.users().list(customer='03u2psid', maxResults=50,
-                                orderBy='email').execute()
-    users = results.get('users', [])
-
-    if not users:
-        print('No users in the domain.')
+    print('Getting the names of members of a groups')
+    results = service.members().list(maxResults=50, groupKey = GROUP).execute()
+    members = results.get('members', [])
+    #El primer miembro es la cabeza del diccionario por lo que no se tiene en cuenta
+    #members = members[1:]
+    list_id_members = []
+    if not members:
+        print('No members in the domain.')
     else:
-        print('Users:')
-        for user in users:
-            print(u'{0} ({1})'.format(user['primaryEmail'],
-                user['name']['fullName']))
-
+        #print('Groups:')
+        for member in members:
+            if member['type'] == 'CUSTOMER':
+                continue
+            else:
+                #print(u'{0}, {1}'.format(member['email'], member['id']))
+                list_id_members.append(member['email'])
+        return list_id_members
 
 if __name__ == '__main__':
-    main()
+    mg = members_groups(GROUP='03cqmetx3x4zz9p')
+    print(mg)
 
 
 
-# Referencias 
+# Referencias:
 
-# https://developers.google.com/apps-script/advanced/admin-sdk-directory
-# https://www.youtube.com/watch?v=j2ha_o3q4Ik
-# https://www.youtube.com/watch?v=twCrEHXdC4Q&t=182s
-# https://developers.google.com/admin-sdk/directory/v1/guides/prerequisites?hl=es
-# # https://developers.google.com/admin-sdk/directory/v1/get-start/getting-started?hl=es
-# https://developers.google.com/admin-sdk/directory/v1/guides/manage-users?hl=es
-# https://developers.google.com/admin-sdk/directory/reference/rest/v1/users/list?hl=es
-# https://developers.google.com/admin-sdk/directory/v1/quickstart/python
+# https://developers.google.com/admin-sdk/directory/reference/rest/v1/members/list

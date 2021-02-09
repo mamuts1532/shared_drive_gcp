@@ -75,9 +75,9 @@ if __name__=='__main__':
     print('Creating Folders...')
     print('******************')
     cf = create_folder()
-    print('Assigning Permissions...')
-    print('******************')
-    assign_permissions(LIST_METADATA=cf)
+    # print('Assigning Permissions...')
+    # print('******************')
+    # assign_permissions(LIST_METADATA=cf)
     #permissions()
 
 

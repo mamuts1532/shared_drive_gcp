@@ -1,0 +1,12 @@
+Groups:
+administrativo@quantil.com.co, 0279ka654kypbv4
+classroom_teachers@quantil.com.co, 01tuee742u306sv
+direccion.administrativa@quantil.com.co, 01tuee744dz97pl
+director.area@quantil.com.co, 02szc72q2xxvuu8
+director.general@quantil.com.co, 01baon6m35is19e
+empleados@quantil.com.co, 03cqmetx3x4zz9p
+exquantileros@quantil.com.co, 02u6wntf3kz4b5h
+seminario.ma@quantil.com.co, 04bvk7pj10ejuf9
+seminario.tech@quantil.com.co, 03as4poj2gh581f
+tic@quantil.com.co, 01qoc8b127t2hl9
+todos@quantil.com.co, 03oy7u290jr1999

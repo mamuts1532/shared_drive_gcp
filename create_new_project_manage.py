@@ -5,6 +5,7 @@ from googleapiclient.http import MediaFileUpload
 import datetime
 from apiclient import errors
 from datetime import datetime
+import list_member_group_service
 
 
 
@@ -28,6 +29,26 @@ def main():
             m = '0'+m
         return str(y+m)
 
+        ##########################--PERMISSIONS--################################
+
+    # Asignar acceso de todos los usuarios a un Proyecto (folder)
+    def assign_permissions_folder(LIST_PERMISSIONS, ID_FOLDER):
+        for j in LIST_PERMISSIONS:
+            create_permissions(EMAIL_ADDRESS=j, ID_DRIVE=ID_FOLDER)    
+
+    # Función para listar permisos de carpetas
+    def list_permissions(ID_DRIVE):
+        """
+        ID_DRIVE: ID del Drieve que se consultara
+        """
+        try:
+            listper = drive.permissions().list(fileId=ID_DRIVE).execute()
+            return listper.get('permissions',[])
+        except errors.HttpError as error:
+            print('An error occurred:', error)
+            return None
+
+    #########################################################################
 
     # Encontrar carpeta pde proyectos
     def search_drive():
@@ -101,31 +122,60 @@ def main():
     def assign_permissions(LIST_METADATA):
         for l in LIST_METADATA:
             if l['name'] == 'Directores y Administrativos':
-                EMAIL_ADDRESS1 = 'director.area@quantil.com.co'
-                EMAIL_ADDRESS2 = 'administrativo@quantil.com.co'
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+                # director.area@quantil.com.co, id = 02szc72q2xxvuu8
+                #administrativo@quantil.com.co, id = 0279ka654kypbv4
+                ID_DRIVE = l['id']
+                print('=>', ID_DRIVE)
+                EMAIL_GROUP = 'director.area@quantil.com.co'
+                EMAIL_GROUP2 = 'administrativo@quantil.com.co'
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP2, ID_DRIVE=l['id'])
+                #print(list_permissions(ID_DRIVE=ID_DRIVE))
                 
 
             elif l['name'] == 'Directores y Dirección Administrativa':
-                EMAIL_ADDRESS1 = 'director.area@quantil.com.co'
-                EMAIL_ADDRESS2 = 'direccion.administrativa@quantil.com.co'
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+                # director.area@quantil.com.co, id = 02szc72q2xxvuu8
+                # direccion.administrativa@quantil.com.co, id = 01tuee744dz97pl
+                iddriv = l['id']
+                print('=>', ID_DRIVE)
+                EMAIL_GROUP = 'director.area@quantil.com.co'
+                ID_EMAIL_GROUP = '02szc72q2xxvuu8'
+                EMAIL_GROUP2 = 'direccion.administrativa@quantil.com.co'
+                ID_EMAIL_GROUP2 = '01tuee744dz97pl'
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP2, ID_DRIVE=l['id'])
+                print(list_permissions(ID_DRIVE=iddriv))
 
             if l['name'] == 'Directores Generales y Administrativos':
-                EMAIL_ADDRESS1 = 'director.general@quantil.com.co'
-                EMAIL_ADDRESS2 = 'administrativo@quantil.com.co'
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS1, ID_DRIVE=l['id'])
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS2, ID_DRIVE=l['id'])
+                # director.general@quantil.com.co, id = 01baon6m35is19e
+                # administrativo@quantil.com.co, id = 0279ka654kypbv4
+                ID_DRIVE = l['id']
+                print('=>', ID_DRIVE)
+                EMAIL_GROUP = 'director.general@quantil.com.co'
+                ID_EMAIL_GROUP = '01baon6m35is19e'
+                EMAIL_GROUP2 = 'administrativo@quantil.com.co'
+                ID_EMAIL_GROUP2 = '0279ka654kypbv4'
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP2, ID_DRIVE=l['id'])
+                #print(list_permissions(ID_DRIVE=ID_DRIVE))
 
             if l['name'] == 'Administrativos':
-                EMAIL_ADDRESS = 'administrativo@quantil.com.co'
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
+                # administrativo@quantil.com.co, id = 0279ka654kypbv4
+                ID_DRIVE = l['id']
+                print('=>', ID_DRIVE)
+                EMAIL_GROUP = 'administrativo@quantil.com.co'
+                ID_EMAIL_GROUP = '0279ka654kypbv4'
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
+                #print(list_permissions(ID_DRIVE=ID_DRIVE))
 
             if l['name'] == 'Todo Quantil':
-                EMAIL_ADDRESS = 'empleados@quantil.com.co'
-                create_permissions(EMAIL_ADDRESS=EMAIL_ADDRESS, ID_DRIVE=l['id'])
+                ID_DRIVE = l['id']
+                print('=>', ID_DRIVE)
+                # empleados@quantil.com.co, 03cqmetx3x4zz9p
+                EMAIL_GROUP = 'empleados@quantil.com.co'
+                ID_EMAIL_GROUP = '03cqmetx3x4zz9p'
+                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
+                #print(list_permissions(ID_DRIVE=ID_DRIVE))
     
     def search_folder(Id_Customer):
 
@@ -171,16 +221,30 @@ def main():
     list_metadata = []
     searchfolder = search_drive()
 
+
+
     if searchfolder != None:
         var_search_folder = search_folder(Id_Customer=searchfolder)
         if var_search_folder != None:
+            # Pide como input el nombre del proyecto
             name_project = input("Escriba el nombre del proyecto! \n")
+            # ENcuentra la fecha
             time_string = time_string()
+            # AJusta nombre del proyecto adicionandole la fecha 
             name_project = time_string+'-'+name_project
+            # Crea una lista con el nombre del proyecto, dado que la funcipon de crear proyeco
+            # recibe como para metro una lista
             list_name_project = [str(name_project)]
+            # Crea la carpeta del proyecto asignando el nombre construido anteriormente
             var_folder_project = create_folder(ID_PARENTS=var_search_folder, LIST_FOLDER = list_name_project)
+            # Crea las carpetas predeterminadas en la lista 'list_folder' dentro del proyecto
             var_folder_project_permissions = create_folder(ID_PARENTS = var_folder_project[0]['id'], LIST_FOLDER=list_folder)
-            #assign_permissions(LIST_METADATA=var_folder_project_permissions)
+            print('>>',var_folder_project_permissions)
+            # Asigna permisos de todo los mienbros del grupo "??" a la carpeta del proyecto recien creado
+            list_mem_group = list_member_group_service.members_groups(GROUP = '01qoc8b127t2hl9') # ID grupo TIC
+            print(list_mem_group)
+            #assign_permissions_folder(LIST_PERMISSIONS=, ID_FOLDER=var_folder_project_permissions)
+            assign_permissions(LIST_METADATA=var_folder_project_permissions)
         else:
             print('No se encontro Cliente con este Nombre!')
             
