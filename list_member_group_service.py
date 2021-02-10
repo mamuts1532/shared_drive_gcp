@@ -54,6 +54,7 @@ def members_groups(GROUP):
         return list_id_members
 
 if __name__ == '__main__':
+    # Grupo: empleados@quantil.com.co >> '03cqmetx3x4zz9p'
     mg = members_groups(GROUP='03cqmetx3x4zz9p')
     print(mg)
 

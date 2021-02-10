@@ -21,6 +21,7 @@ def main():
 
     print('Autenticación valida con Api Drive V3')
 
+    # Función para encontrar fecha actual, retorna un string de la fecha
     def time_string():
         now = datetime.now()
         y = str(now.year)
@@ -29,7 +30,7 @@ def main():
             m = '0'+m
         return str(y+m)
 
-        ##########################--PERMISSIONS--################################
+    ##########################--PERMISSIONS--################################
 
     # Asignar acceso de todos los usuarios a un Proyecto (folder)
     def assign_permissions_folder(LIST_PERMISSIONS, ID_FOLDER):
@@ -48,7 +49,37 @@ def main():
             print('An error occurred:', error)
             return None
 
-    #########################################################################
+    # Función para obtener permisos de carpetas
+    def get_permissions(ID_DRIVE, ID_PERMISSIONS):
+        """
+        ID_PERMISSIONS: Permisos que se consultara 
+                    (normalmente es un usuario por medio de un email 
+                    o un grupo de usuarios)
+        ID_DRIVE: ID del Drieve que se consultara
+        """
+        try:
+            gt = drive.permissions().get(fileId=ID_DRIVE, permissionId=ID_PERMISSIONS, fields='emailAddress, role').execute()
+            #print(gt)
+            return gt
+        except errors.HttpError as error:
+            print('An error occurred:', error)
+            return None
+    
+    # Función para eliminar permisos de carpetas
+    def delete_permissions(ID_PERMISSIONS, ID_DRIVE):
+        """
+        ID_PERMISSIONS: Permiso que se eliminara 
+                    (ID del permiso, este se obtiene por medio del metodo GET del Api Drive)
+        ID_DRIVE: ID del Drieve al que se elimina algun permsiso
+        """
+        try:
+            drive.permissions().delete(fileId=ID_DRIVE, permissionId=ID_PERMISSIONS).execute()
+            return # print('Permission Delete!!!')
+        except errors.HttpError as error:
+            print('An error occurred:', error)
+            return None
+
+    ###################################--END--######################################
 
     # Encontrar carpeta pde proyectos
     def search_drive():
@@ -118,64 +149,106 @@ def main():
         except errors.HttpError as error:
             print('An error occurred:', error)
             return None
+    # Adimistra  los permisos de las carpetas dependiendo el nombre y los grupos que pertenescan
+    # Elimina los usuarios que no deben estar en esas carpetas. 
+    def manage_permissions(LIST_METADATA):
+        
+        email_group_director_area = 'director.area@quantil.com.co'
+        id_email_group_director_area = '02szc72q2xxvuu8'
+        member_director_area = list_member_group_service.members_groups(GROUP = id_email_group_director_area)
+        # print('member_director_area',member_director_area)
 
-    def assign_permissions(LIST_METADATA):
+        email_group_administrativo = 'administrativo@quantil.com.co'
+        id_email_group_administrativo = '0279ka654kypbv4'
+        member_administrativo = list_member_group_service.members_groups(GROUP = id_email_group_administrativo)
+        # print('member_administrativo',member_administrativo)            
+
+        email_group_direccion_administrativa = 'direccion.administrativa@quantil.com.co'
+        id_email_group_direccion_administrativa = '01tuee744dz97pl'
+        member_direccion_administrativa = list_member_group_service.members_groups(GROUP = id_email_group_direccion_administrativa)
+        # print('member_direccion_administrativa',member_direccion_administrativa) 
+        
+        email_group_director_general = 'direccion.administrativa@quantil.com.co'
+        id_email_group_director_general = '01baon6m35is19e'
+        member_director_general = list_member_group_service.members_groups(GROUP = id_email_group_director_general)
+        # print('member_director_general',member_director_general) 
+
+        email_group_empleados = 'empleados@quantil.com.co' 
+        id_email_group_empleados = '03cqmetx3x4zz9p'
+        member_empleados = list_member_group_service.members_groups(GROUP = id_email_group_empleados)
+        # print('member_empleados',member_empleados) 
+
         for l in LIST_METADATA:
             if l['name'] == 'Directores y Administrativos':
-                # director.area@quantil.com.co, id = 02szc72q2xxvuu8
-                #administrativo@quantil.com.co, id = 0279ka654kypbv4
-                ID_DRIVE = l['id']
-                print('=>', ID_DRIVE)
-                EMAIL_GROUP = 'director.area@quantil.com.co'
-                EMAIL_GROUP2 = 'administrativo@quantil.com.co'
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP2, ID_DRIVE=l['id'])
-                #print(list_permissions(ID_DRIVE=ID_DRIVE))
-                
+                # print('Directores y Administrativos')
+                iddriv = l['id']
+                lp = list_permissions(ID_DRIVE=iddriv)
+                for i in lp:
+                    gp = get_permissions(ID_DRIVE=iddriv, ID_PERMISSIONS=i['id'])
+                    # print('>>',gp['emailAddress'], gp['role'])
+                    if gp['emailAddress'] in member_director_area or gp['emailAddress'] in member_administrativo or  gp['role'] == 'owner':
+                        continue
+                        # print(gp['emailAddress'], 'Si debe tener permisos en esta carpeta')
+                    else:
+                        # print(gp['emailAddress'], 'No debe tener permisos en esta carpeta')
+                        delete_permissions(ID_PERMISSIONS=i['id'], ID_DRIVE=iddriv)
 
             elif l['name'] == 'Directores y Dirección Administrativa':
-                # director.area@quantil.com.co, id = 02szc72q2xxvuu8
-                # direccion.administrativa@quantil.com.co, id = 01tuee744dz97pl
+                # print('Directores y Dirección Administrativa')
                 iddriv = l['id']
-                print('=>', ID_DRIVE)
-                EMAIL_GROUP = 'director.area@quantil.com.co'
-                ID_EMAIL_GROUP = '02szc72q2xxvuu8'
-                EMAIL_GROUP2 = 'direccion.administrativa@quantil.com.co'
-                ID_EMAIL_GROUP2 = '01tuee744dz97pl'
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP2, ID_DRIVE=l['id'])
-                print(list_permissions(ID_DRIVE=iddriv))
+                lp = list_permissions(ID_DRIVE=iddriv)
+                for i in lp:
+                    gp = get_permissions(ID_DRIVE=iddriv, ID_PERMISSIONS=i['id'])
+                    # print('>>',gp['emailAddress'], gp['role'])
+                    if gp['emailAddress'] in member_director_area or gp['emailAddress'] in member_direccion_administrativa or  gp['role'] == 'owner':
+                        continue
+                        # print(gp['emailAddress'], 'Si debe tener permisos en esta carpeta')
+                    else:
+                        # print(gp['emailAddress'], 'No debe tener permisos en esta carpeta')
+                        delete_permissions(ID_PERMISSIONS=i['id'], ID_DRIVE=iddriv)
+                
 
             if l['name'] == 'Directores Generales y Administrativos':
-                # director.general@quantil.com.co, id = 01baon6m35is19e
-                # administrativo@quantil.com.co, id = 0279ka654kypbv4
-                ID_DRIVE = l['id']
-                print('=>', ID_DRIVE)
-                EMAIL_GROUP = 'director.general@quantil.com.co'
-                ID_EMAIL_GROUP = '01baon6m35is19e'
-                EMAIL_GROUP2 = 'administrativo@quantil.com.co'
-                ID_EMAIL_GROUP2 = '0279ka654kypbv4'
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP2, ID_DRIVE=l['id'])
-                #print(list_permissions(ID_DRIVE=ID_DRIVE))
+                # print('Directores Generales y Administrativos')
+                iddriv = l['id']
+                lp = list_permissions(ID_DRIVE=iddriv)
+                for i in lp:
+                    gp = get_permissions(ID_DRIVE=iddriv, ID_PERMISSIONS=i['id'])
+                    # print('>>',gp['emailAddress'], gp['role'])
+                    if gp['emailAddress'] in member_director_general or gp['emailAddress'] in member_administrativo or  gp['role'] == 'owner':
+                        continue
+                        # print(gp['emailAddress'], 'Si debe tener permisos en esta carpeta')
+                    else:
+                        # print(gp['emailAddress'], 'No debe tener permisos en esta carpeta')
+                        delete_permissions(ID_PERMISSIONS=i['id'], ID_DRIVE=iddriv)
 
             if l['name'] == 'Administrativos':
-                # administrativo@quantil.com.co, id = 0279ka654kypbv4
-                ID_DRIVE = l['id']
-                print('=>', ID_DRIVE)
-                EMAIL_GROUP = 'administrativo@quantil.com.co'
-                ID_EMAIL_GROUP = '0279ka654kypbv4'
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
-                #print(list_permissions(ID_DRIVE=ID_DRIVE))
+                # print('Administrativos')
+                iddriv = l['id']
+                lp = list_permissions(ID_DRIVE=iddriv)
+                for i in lp:
+                    gp = get_permissions(ID_DRIVE=iddriv, ID_PERMISSIONS=i['id'])
+                    # print('>>',gp['emailAddress'], gp['role'])
+                    if gp['emailAddress'] in member_administrativo or  gp['role'] == 'owner':
+                        continue
+                        # print(gp['emailAddress'], 'Si debe tener permisos en esta carpeta')
+                    else:
+                        # print(gp['emailAddress'], 'No debe tener permisos en esta carpeta')
+                        delete_permissions(ID_PERMISSIONS=i['id'], ID_DRIVE=iddriv)
 
             if l['name'] == 'Todo Quantil':
-                ID_DRIVE = l['id']
-                print('=>', ID_DRIVE)
-                # empleados@quantil.com.co, 03cqmetx3x4zz9p
-                EMAIL_GROUP = 'empleados@quantil.com.co'
-                ID_EMAIL_GROUP = '03cqmetx3x4zz9p'
-                # create_permissions(EMAIL_ADDRESS=EMAIL_GROUP, ID_DRIVE=l['id'])
-                #print(list_permissions(ID_DRIVE=ID_DRIVE))
+                # print('Todo Quantil')
+                iddriv = l['id']
+                lp = list_permissions(ID_DRIVE=iddriv)
+                for i in lp:
+                    gp = get_permissions(ID_DRIVE=iddriv, ID_PERMISSIONS=i['id'])
+                    # print('>>',gp['emailAddress'], gp['role'])
+                    if gp['emailAddress'] in member_empleados or  gp['role'] == 'owner':
+                        continue
+                        # print(gp['emailAddress'], 'Si debe tener permisos en esta carpeta')
+                    else:
+                        # print(gp['emailAddress'], 'No debe tener permisos en esta carpeta')
+                        delete_permissions(ID_PERMISSIONS=i['id'], ID_DRIVE=iddriv)
     
     def search_folder(Id_Customer):
 
@@ -228,7 +301,7 @@ def main():
         if var_search_folder != None:
             # Pide como input el nombre del proyecto
             name_project = input("Escriba el nombre del proyecto! \n")
-            # ENcuentra la fecha
+            # Encuentra la fecha actual
             time_string = time_string()
             # AJusta nombre del proyecto adicionandole la fecha 
             name_project = time_string+'-'+name_project
@@ -239,12 +312,13 @@ def main():
             var_folder_project = create_folder(ID_PARENTS=var_search_folder, LIST_FOLDER = list_name_project)
             # Crea las carpetas predeterminadas en la lista 'list_folder' dentro del proyecto
             var_folder_project_permissions = create_folder(ID_PARENTS = var_folder_project[0]['id'], LIST_FOLDER=list_folder)
-            print('>>',var_folder_project_permissions)
-            # Asigna permisos de todo los mienbros del grupo "??" a la carpeta del proyecto recien creado
-            list_mem_group = list_member_group_service.members_groups(GROUP = '01qoc8b127t2hl9') # ID grupo TIC
-            print(list_mem_group)
-            #assign_permissions_folder(LIST_PERMISSIONS=, ID_FOLDER=var_folder_project_permissions)
-            assign_permissions(LIST_METADATA=var_folder_project_permissions)
+            ####*** Asigna permisos a todo los mienbros del grupo "empleados@quantil.com.co" a la carpeta del proyecto recien creado***###
+            # Primero obtenemos una lista de los miembros de empleados@quantil.com.co 
+            list_mem_group = list_member_group_service.members_groups(GROUP = '03cqmetx3x4zz9p') # ID grupo tic@quantil.com.co, deberia ir el grupo de empleados@quantil.com.co
+            # Asigna a la lista anterior de usuarios acceso las carpetas predeterminadas del proyecto
+            assign_permissions_folder(LIST_PERMISSIONS=list_mem_group, ID_FOLDER=var_folder_project_permissions[0]['id'])
+            # Administra o elimina los permisos a las carpetas del proyecto dependiendo de los grupos de usuarios. 
+            manage_permissions(LIST_METADATA=var_folder_project_permissions)
         else:
             print('No se encontro Cliente con este Nombre!')
             

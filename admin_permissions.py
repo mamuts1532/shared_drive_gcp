@@ -66,8 +66,7 @@ def create_permissions(EMAIL_ADDRESS, ID_DRIVE):
 def get_permissions(ID_DRIVE, ID_PERMISSIONS):
     """
     ID_PERMISSIONS: Permisos que se consultara 
-                (normalmente es un usuario por medio de un email 
-                o un grupo de usuarios)
+                (ID del permiso, este se obtiene por medio del metodo GET del Api Drive)
     ID_DRIVE: ID del Drieve que se consultara
     """
     try:
