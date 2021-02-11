@@ -319,6 +319,7 @@ def main():
             assign_permissions_folder(LIST_PERMISSIONS=list_mem_group, ID_FOLDER=var_folder_project_permissions[0]['id'])
             # Administra o elimina los permisos a las carpetas del proyecto dependiendo de los grupos de usuarios. 
             manage_permissions(LIST_METADATA=var_folder_project_permissions)
+            print("Proceso Finalizado!!!")
         else:
             print('No se encontro Cliente con este Nombre!')
             

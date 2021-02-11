@@ -36,8 +36,8 @@ def search_drive():
                     # print ('Found file: %s (%s)' % (file.get('name'), file.get('id')))
                     id_project = file.get('id')
 
-                    flag_while = False
-                    flag_for = True
+                    #flag_while = False
+                    #flag_for = True
             page_token = response.get('nextPageToken', None)
             if page_token is None:
                 break
